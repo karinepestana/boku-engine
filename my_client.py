@@ -5,144 +5,17 @@ import time
 from math import inf
 import copy
 
-waiting_removal = False
-
-def can_remove(player):
-        removals = []
-        l = []
-
-        #test vertical
-        
-        #test upward
-        s = ""
-        for line in range(max(last_line-3,1), last_line+1):
-          
-            state = board[self.last_column-1][line-1]
-            s += str(state)
-        
-        if ("1221" in s and player==1) or ("2112" in s and player==2):
-            removals.append([(last_column,last_line-1),(last_column,last_line-2)])
-
-        #test downward
-        s = ""
-        for line in range(last_line,  min(last_line+3,len(board[last_column-1]))+1):
-        
-            state = board[last_column-1][line-1]
-            s += str(state)
-        
-        if ("1221" in s and player==1) or ("2112" in s and player==2):
-            removals.append([(last_column,last_line+1),(last_column,last_line+2)])
-                 
-
-        # test upward diagonals
-        diags = [(1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
-                 (2, 6), (3, 7), (4, 8), (5, 9), (6, 10)]
-
-        col = last_column
-        line = last_line
-        coords = (col, line)
-
-        s = ""
-        for i in range(0, 4):
-            column = coords[0]
-            line = coords[1]
-            state = board[column - 1][line - 1]
-            l.append((column, line))
-            s += str(state)
-            if "1221" in s and player == 1:
-                removals.append(l[-3:-1])
-            if "2112" in s and player == 2:
-                removals.append(l[-3:-1])
-            coords = neighbors(board, column, line)[1]
-            if coords == None:
-                break
-
-        col = last_column
-        line = last_line
-        coords = (col, line)
-
-        s = ""
-        for i in range(0, 4):
-            print(coords)
-            column = coords[0]
-            line = coords[1]
-            state = board[column - 1][line - 1]
-            l.append((column, line))
-            s += str(state)
-            print(s)
-            if "1221" in s and player == 1:
-                removals.append(l[-3:-1])
-            if "2112" in s and player == 2:
-                removals.append(l[-3:-1])
-            coords = neighbors(board, column, line)[5]
-            if coords == None:
-                break
-
-        # test downward diagonals
-        diags = [(6, 1), (5, 1), (4, 1), (3, 1), (2, 1),
-                 (1, 1), (1, 2), (1, 3), (1, 4), (1, 5)]
-
-        col = last_column
-        line = last_line
-        coords = (col, line)
-
-        s = ""
-        for i in range(0, 4):
-            column = coords[0]
-            line = coords[1]
-            state = board[column - 1][line - 1]
-            l.append((column, line))
-            s += str(state)
-            if "1221" in s and player == 1:
-                removals.append(l[-3:-1])
-            if "2112" in s and player == 2:
-                removals.append(l[-3:-1])
-            coords = neighbors(board, column, line)[2]
-            if coords == None:
-                break
-
-        col = last_column
-        line = last_line
-        coords = (col, line)
-
-        s = ""
-        for i in range(0, 4):
-            print(coords)
-            column = coords[0]
-            line = coords[1]
-            state = board[column - 1][line - 1]
-            l.append((column, line))
-            s += str(state)
-            print(s)
-            if "1221" in s and player == 1:
-                removals.append(l[-3:-1])
-            if "2112" in s and player == 2:
-                removals.append(l[-3:-1])
-            coords = neighbors(board, column, line)[4]
-            if coords == None:
-                break
-
-        if len(removals) > 0:
-            removals = [item for sublist in removals for item in sublist]
-            return removals
-        else:
-            return None
-
 # Returns a list of positions available on a board
 def get_available_moves(board, player):
     l = []
     
-    removal_options = can_remove(player)
-    if removal_options != None:
-        waiting_removal = True
-        return removal_options
-    else:
-        for column in range(len(board)):
-            for line in range(len(board[column])):
-                if board[column][line] == 0:
+   
+    for column in range(len(board)):
+        for line in range(len(board[column])):
+            if board[column][line] == 0:
                     #if (column + 1, line + 1) != forbidden_moves:
-                    l.append((column + 1, line + 1))
-        return l
+                l.append((column + 1, line + 1))
+    return l
 
 
 # Check if a board is in an end-game state. Returns the winning player or None.
@@ -352,22 +225,7 @@ def heuristic(board, player):
 
             coords = neighbors(board, column, line)[4]
 
-    return -5
-            
-def heuristic2(board, player):
-    
-    for col in range(0, len(board)):
-            #for l in range(0, len(board[col])):
-            if player == "1":
-                if board[col].count(1) + board[col].count(0) >= 5:
-                    return 10 #positivo, segue por aqui
-                else:
-                    return -10 #negativo
-            if player == "2":
-                if board[col].count(1) + board[col].count(0) >= 5:
-                    return -10 #positivo, segue por aqui
-                else:
-                    return 10 #negativo
+    return -5           
 
 
 def minimax(board, depth, player, depth_initial): 
@@ -473,12 +331,9 @@ while not done:
         board = eval(resp.read()) #lista com 11 listas representando cada fileira na vertical (0 vazio, 1 player 1 e 2 player 2)
 
         # Escolhe um movimento aleatoriamente
-        #movimento = random.choice(movimentos)
+        #movimento = random.choice(movimentos)        
+
         movimento = minimax(board, len(movimentos), str(player), len(movimentos))
-        #print(movimento)
-        #print(movimento[1][0])
-        #print(movimento[1][1])
-        # Executa o movimento
         resp = urllib.request.urlopen("%s/move?player=%d&coluna=%d&linha=%d" % (host,player,movimento[1][0],movimento[1][1]))
         msg = eval(resp.read())
 
