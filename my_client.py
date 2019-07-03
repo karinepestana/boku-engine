@@ -436,6 +436,8 @@ while not done:
     player_turn = int(resp.read())
     last_column = 0
     last_line = 0
+
+    movimentos_iniciais = [(5,5), (6,6), (7,5), (6,5)]
     
 
     # Se jogador == 0, o jogo acabou e o cliente perdeu
@@ -455,21 +457,29 @@ while not done:
         board = eval(resp.read()) #lista com 11 listas representando cada fileira na vertical (0 vazio, 1 player 1 e 2 player 2)
 
         # Escolhe um movimento aleatoriamente
-        #movimento = random.choice(movimentos)        
+        #movimento = random.choice(movimentos)  
+        resp = urllib.request.urlopen("%s/num_movimentos" % host)
+        num_movimentos = eval(resp.read())
 
-        movimento = minimax(board, len(movimentos), str(player), len(movimentos))
-        resp = urllib.request.urlopen("%s/move?player=%d&coluna=%d&linha=%d" % (host,player,movimento[1][0],movimento[1][1]))
-        msg = eval(resp.read())
-        #print("mensagem" + strmsg)
-
-        if msg[0] == 2:
-            print("sanduiche")
-            resp = urllib.request.urlopen("%s/tabuleiro" % host)
-            board = eval(resp.read())
-            movimento = can_remove(board, player)
-            print(movimento)
+        #primeira jogada escolhe entre o miolho do meio do tabuleiro
+        if num_movimentos < 2:
+            movimento = random.choice(movimentos_iniciais)
+            #print(type(movimento))
+            resp = urllib.request.urlopen("%s/move?player=%d&coluna=%d&linha=%d" % (host,player,movimento[0],movimento[1]))
+            msg = eval(resp.read())
+        else:  
+            movimento = minimax(board, len(movimentos), str(player), len(movimentos))
             resp = urllib.request.urlopen("%s/move?player=%d&coluna=%d&linha=%d" % (host,player,movimento[1][0],movimento[1][1]))
             msg = eval(resp.read())
+
+        #if msg[0] == 2:
+            #print("sanduiche")
+            #resp = urllib.request.urlopen("%s/tabuleiro" % host)
+            #board = eval(resp.read())
+            #movimento = can_remove(board, player)
+            #print(movimento)
+            #resp = urllib.request.urlopen("%s/move?player=%d&coluna=%d&linha=%d" % (host,player,movimento[1][0],movimento[1][1]))
+            #msg = eval(resp.read())
 
         # Se com o movimento o jogo acabou, o cliente venceu
         if msg[0]==0:
