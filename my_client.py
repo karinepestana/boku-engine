@@ -6,6 +6,8 @@ from math import inf
 import copy
 
 first_move = ()
+sanduiche = None
+last_num_movimentos = 0
 
 # Returns a list of positions available on a board
 def get_available_moves(board, player):
@@ -202,7 +204,7 @@ def heuristic3(board, player):
     return -5         
 
 
-def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf, inv_move = (-1,-1)):
+def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf):
     """ 
     Minimax algorithm that choose the best movement in board
     Args:
@@ -212,6 +214,7 @@ def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf, inv_move 
     Returns:
         tuple: score and best move
     """
+    global sanduiche
 
     h = heuristic1(board, player) + heuristic2(board, player) + heuristic3(board, player)
     #h = h + heuristic2(board, player)
@@ -229,13 +232,17 @@ def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf, inv_move 
     moves = get_available_moves(board, player)
     
     #p_list = [(1,0),(2,0),(2,1),(3,0),(3,1),(3,2),(4,0),(4,1),(4,2),(4,3),(5,0),(5,1),(5,2),(5,3),(5,4),(6,0),(6,1),(6,2),(6,3),(7,0),(7,1),(7,2),(8,0),(8,1),(9,0),(0,0),(0,1),(0,2),(0,3),(0,4),(1,1),(1,2),(1,3),(1,4),(2,2),(2,3),(2,4),(3,3),(3,4),(4,4),(1,5),(2,5),(2,6),(3,5),(3,6),(3,7),(4,5),(4,6),(4,7),(4,8),(8,5),(8,6),(9,5),(6,4),(7,3),(8,2),(8,3),(8,4),(9,1),(9,2),(9,3),(9,4),(10,0),(10,1),(10,2),(10,3),(10,4)]
-    p_list = [(6,5), (6,6), (6,7), (6,8), (6,9), (6,10), (7,4), (7,5), (7,6), (7,7), (7,8), (7,9), (5,5), (5,6), (5,7), (5,8), (5,9), (8,4), (8,5), (8,6), (8,7), (8,8), (4,5), (4,6), (4,7), (4,8), (6,3), (6,2), (6,1), (7,3), (7,2), (7,1), (5,4), (5,3), (5,2), (5,1), (8,3), (8,2), (8,1), (4,4), (4,3), (4,2), (4,1), (9,4), (9,5), (9,6), (9,7), (3,4), (3,5), (3, 6), (3,7), (9,3), (9,2), (9,1), (3,3), (3,2), (3,1), (10,3), (10,4), (10,5), (10,6), (2,4), (2,5), (2,6), (10,2), (10,1), (2,3), (2,2), (2,1), (11,3), (11,4), (11,5), (1,3), (1,4), (1,5), (11,2), (11,1), (1,2), (1,1)]
+    #p_list = [(6,5), (6,6), (6,7), (6,8), (6,9), (6,10), (7,4), (7,5), (7,6), (7,7), (7,8), (7,9), (5,5), (5,6), (5,7), (5,8), (5,9), (8,4), (8,5), (8,6), (8,7), (8,8), (4,5), (4,6), (4,7), (4,8), (6,3), (6,2), (6,1), (7,3), (7,2), (7,1), (5,4), (5,3), (5,2), (5,1), (8,3), (8,2), (8,1), (4,4), (4,3), (4,2), (4,1), (9,4), (9,5), (9,6), (9,7), (3,4), (3,5), (3, 6), (3,7), (9,3), (9,2), (9,1), (3,3), (3,2), (3,1), (10,3), (10,4), (10,5), (10,6), (2,4), (2,5), (2,6), (10,2), (10,1), (2,3), (2,2), (2,1), (11,3), (11,4), (11,5), (1,3), (1,4), (1,5), (11,2), (11,1), (1,2), (1,1)]
 
     #p_list = p_list.reverse()
-    for item in p_list:
-        if item in moves:
-            moves.remove(item)
-            moves.append(item)
+    #for item in p_list:
+        #if item in moves:
+           # moves.remove(item)
+           #moves.append(item)
+
+    if sanduiche != None:
+        moves.remove((sanduiche[0],sanduiche[1]))
+        sanduiche = None
 
     #print(moves)
 
@@ -415,17 +422,16 @@ player = int(sys.argv[1])
 resp = urllib.request.urlopen("%s/reiniciar" % host)
 
 done = False
-    
-
+num_movimentos = 0
 while not done:
     # Pergunta quem eh o jogador
     resp = urllib.request.urlopen("%s/jogador" % host)
     player_turn = int(resp.read())
     last_column = 0
-    last_line = 0
+    last_line = 0 
+    #sanduiche = None   
 
-
-    movimentos_iniciais = [(6,6), (6,5)]
+    movimentos_iniciais = [(5,4), (6,6), (6,5), (7,4)]
     
 
     # Se jogador == 0, o jogo acabou e o cliente perdeu
@@ -447,9 +453,25 @@ while not done:
         # Escolhe um movimento aleatoriamente
         #movimento = random.choice(movimentos)  
         resp = urllib.request.urlopen("%s/num_movimentos" % host)
-        num_movimentos = eval(resp.read())
 
+        #last_num_movimentos += 2
+        last_num_movimentos = int(num_movimentos)
+        num_movimentos = eval(resp.read())
+        print(num_movimentos)
+        print(last_num_movimentos)
         msg = ""
+
+        #global sanduiche
+        if num_movimentos - last_num_movimentos > 2:
+            #ocorreu um sanduiche
+            print("recebendo um sanduiche")
+            print(num_movimentos)
+            print(last_num_movimentos)
+            last_num_movimentos += 1
+            resp = urllib.request.urlopen("%s/ultima_jogada" % host)
+            sanduiche = eval(resp.read())
+            print(sanduiche)
+
 
         #primeira jogada escolhe entre o miolho do meio do tabuleiro
         if num_movimentos < 2 and first_move == ():
@@ -472,9 +494,9 @@ while not done:
             resp = urllib.request.urlopen("%s/tabuleiro" % host)
             board = eval(resp.read())
             movimento = can_remove(board, player, last_column, last_line)
-            print(movimento)
             resp = urllib.request.urlopen("%s/move?player=%d&coluna=%d&linha=%d" % (host,player,movimento[1][0],movimento[1][1]))
             msg = eval(resp.read())
+       
 
         # Se com o movimento o jogo acabou, o cliente venceu
         if msg[0]==0:
@@ -482,7 +504,10 @@ while not done:
             done = True
         if msg[0]<0:
             raise Exception(msg[1])
-    
+
+        #global last_num_movimentos
+        #print(num_movimentos)
+        #print(last_num_movimentos)
     # Descansa um pouco para nao inundar o servidor com requisicoes
     time.sleep(1)
 
