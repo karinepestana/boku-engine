@@ -120,7 +120,7 @@ def neighbors(board, column, line):
 
     return l
 
-def heuristic1(board, player):
+def h_line(board, player):
 
     cont = 0
     seq = 0
@@ -139,11 +139,11 @@ def heuristic1(board, player):
                 cont = 0
 
             if cont + seq == 5:
-                return +15*seq
+                return +10*seq
 
-    return -5
+    return -1
 
-def heuristic2(board, player):
+def h_upward_diagonals(board, player):
 
     # test upward diagonals
 
@@ -172,9 +172,9 @@ def heuristic2(board, player):
            
             coords = neighbors(board, column, line)[1]
 
-    return -5
+    return -1
 
-def heuristic3(board, player):
+def h_downward_diagonals(board, player):
 
     cont = 0
     seq = 0
@@ -201,8 +201,94 @@ def heuristic3(board, player):
 
             coords = neighbors(board, column, line)[4]
 
-    return -5         
+    return -1 
 
+
+def heuristica_total(board, player):
+
+	estado_final = is_final_state(board)
+	if estado_final is not None:
+		if estado_final == 1:
+			return 500
+		else:
+			return -500
+
+	h = 0  
+
+	#for column in range(0, len(board)):
+		#faz os calculos para o min e max 
+	h_line_p1 = h_line(board, 1) 
+	h_line_p2 = h_line(board, 2) 
+
+	h_upward_diagonals_p1 = h_upward_diagonals(board, 1)
+	h_upward_diagonals_p2 = h_upward_diagonals(board, 2)
+
+	h_downward_diagonals_p1 = h_downward_diagonals(board, 1) 
+	h_downward_diagonals_p2 = h_downward_diagonals(board, 2)
+
+	if player == 1:
+		#testando as verticais
+		if h_line_p2 != -1:
+			h -= 20
+			if h_line_p2 > 30:
+				h -= h_line_p2
+		if h_line_p1 != -1:
+			h -= 25
+		else:
+			h += 20
+
+		#testando as diagonais superiores
+		if h_upward_diagonals_p2 != -1:
+			h -= 20
+			if h_upward_diagonals_p2 > 30:
+				h -= h_upward_diagonals_p2
+		if h_upward_diagonals_p1 != -1:
+			h -= 25
+		else:
+			h += 20
+
+		#testando as diagonais inferiores
+		if h_downward_diagonals_p2 != -1:
+			h -= 20
+			if h_downward_diagonals_p2 > 30:
+				h -= h_downward_diagonals_p2
+		if h_downward_diagonals_p1 != -1:
+			h -= 25
+		else:
+			h += 20
+
+	if player == 2:
+		#testando as verticais
+		if h_line_p1 != -1:
+			h -= 20
+			if h_line_p1 > 30:
+				h -= h_line_p2
+		if h_line_p2 != -1:
+			h -= 25
+		else:
+			h += 20
+
+		#testando as diagonais superiores
+		if h_upward_diagonals_p1 != -1:
+			h -= 20
+			if h_upward_diagonals_p1 > 30:
+				h -= h_upward_diagonals_p1
+		if h_upward_diagonals_p2 != -1:
+			h -= 25
+		else:
+			h += 20
+
+		#testando as diagonais inferiores
+		if h_downward_diagonals_p1 != -1:
+			h -= 20
+			if h_downward_diagonals_p1 > 30:
+				h -= h_downward_diagonals_p1
+		if h_downward_diagonals_p2 != -1:
+			h -= 25
+		else:
+			h += 20
+
+	return h
 
 def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf):
     """ 
@@ -216,17 +302,17 @@ def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf):
     """
     global sanduiche
 
-    h = heuristic1(board, player) + heuristic2(board, player) + heuristic3(board, player)
+    #h = heuristic1(board, player) + heuristic2(board, player) + heuristic3(board, player)
     #h = h + heuristic2(board, player)
 
-    final_state = is_final_state(board)
-    if final_state is not None:
-        if final_state == 1:
-            return -100 - depth, board
-        else:
-            return 100 + depth, board
-    if depth == depth_initial-2:
-        return h, board 
+    #final_state = is_final_state(board)
+    #if final_state is not None:
+        #if final_state == 1:
+        #    return -100 - depth, board
+        #else:
+        #    return 100 + depth, board
+    #if depth == depth_initial-2:
+    #    return h, board 
 
     
     moves = get_available_moves(board, player)
@@ -240,6 +326,10 @@ def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf):
         #if item in moves:
            # moves.remove(item)
            #moves.append(item)
+
+    if depth == depth_initial-2:
+    	h = heuristica_total(board, player)
+    	return h
 
     if sanduiche != None:
     	print(moves)
@@ -466,9 +556,9 @@ while not done:
         #global sanduiche
 
         movimentos_disp = get_available_moves(board, player)
-        print("moves " + str(len(movimentos_disp)))
-        print(ant_movimentos_disp)
-        print(len(movimentos_disp))
+        #print("moves " + str(len(movimentos_disp)))
+        #print(ant_movimentos_disp)
+        #print(len(movimentos_disp))
 
         #primeira jogada escolhe entre o miolho do meio do tabuleiro
         if num_movimentos < 2:
@@ -483,10 +573,10 @@ while not done:
         else:
         	if ant_movimentos_disp - len(movimentos_disp) != 2:
         		#significa que ocorreu um sanduiche
-	        	print("recebendo um sanduiche")
+	        	print("Recebeu um sanduiche")
 	        	resp = urllib.request.urlopen("%s/ultima_jogada" % host)
 	        	sanduiche = eval(resp.read())	        	
-	        	print(sanduiche)
+	        	print("Posição removida: " + sanduiche)
 
         	movimento = minimax(board, len(movimentos), str(player), len(movimentos))
         	last_column = movimento[1][0]
@@ -496,7 +586,7 @@ while not done:
 
         
         if msg[0] == 2:
-            print("sanduiche")
+            print("Faz um sanduiche")
             ant_movimentos_disp -=1
             resp = urllib.request.urlopen("%s/tabuleiro" % host)
             board = eval(resp.read())
