@@ -247,9 +247,9 @@ def heuristica_total(board, player):
 				if h_line_p2 > 30:
 					h -= h_line_p2
 			if h_line_p1 != -1:
-				h -= 20
-			else:
 				h += 30
+			else:
+				h -= 20
 		
 		if col in [4, 5, 6]:
 			h +=200
@@ -257,13 +257,13 @@ def heuristica_total(board, player):
 		if player == 2:
 		#testando as verticais
 			if h_line_p1 != -1:
-				h -= 20
+				h += 20
 				if h_line_p1 > 30:
-					h -= h_line_p2
+					h += h_line_p2
 			if h_line_p2 != -1:
-				h -= 20
+				h -= 30
 			else:
-				h += 30
+				h += 20
 
 	if player == 1:
 		#testando as diagonais superiores
@@ -272,9 +272,9 @@ def heuristica_total(board, player):
 			if h_upward_diagonals_p2 > 30:
 				h -= h_upward_diagonals_p2*2
 		if h_upward_diagonals_p1 != -1:
-			h -= 40
-		else:
 			h += 60
+		else:
+			h -= 40
 
 		#testando as diagonais inferiores
 		if h_downward_diagonals_p2 != -1:
@@ -282,16 +282,16 @@ def heuristica_total(board, player):
 			if h_downward_diagonals_p2 > 30:
 				h -= h_downward_diagonals_p2*2
 		if h_downward_diagonals_p1 != -1:
-			h -= 40
-		else:
 			h += 60
+		else:
+			h -= 40
 
 	if player == 2:
 		#testando as diagonais superiores
 		if h_upward_diagonals_p1 != -1:
-			h -= 50
+			h += 50
 			if h_upward_diagonals_p1 > 30:
-				h -= h_upward_diagonals_p1*2
+				h += h_upward_diagonals_p1*2
 		if h_upward_diagonals_p2 != -1:
 			h -= 40
 		else:
@@ -299,9 +299,9 @@ def heuristica_total(board, player):
 
 		#testando as diagonais inferiores
 		if h_downward_diagonals_p1 != -1:
-			h -= 50
+			h += 50
 			if h_downward_diagonals_p1 > 30:
-				h -= h_downward_diagonals_p1*2
+				h += h_downward_diagonals_p1*2
 		if h_downward_diagonals_p2 != -1:
 			h -= 40
 		else:
@@ -578,8 +578,9 @@ while not done:
 
         movimentos_disp = get_available_moves(board, player)
         #print("moves " + str(len(movimentos_disp)))
-        #print(ant_movimentos_disp)
-        #print(len(movimentos_disp))
+        print("rodada")
+        print(ant_movimentos_disp)
+        print(len(movimentos_disp))
 
         #primeira jogada escolhe entre o miolho do meio do tabuleiro
         if num_movimentos < 2:
