@@ -128,18 +128,24 @@ def h_line(board, player):
     
     for line in range(len(board)):
     	state = board[line]
-    	if state == 0:
-    		cont = cont +1
-    	elif state == player:
-        	seq = seq + 1
+    	
+    	if state == 0 or state == player:
+    		if state == 0:
+    			cont += 1
+    		else:
+        		seq += 1
+    		if (cont + seq) == 5:
+        		if seq == 0:
+        			seq = 1
+        		print("if")
+        		return +10*seq
     	else:
         	cont = 0
         	seq = 0
+        	#print("reset")
 
-    	if cont + seq == 5:
-        	if seq == 0:
-        		seq = 1
-        	return +10*seq  
+    	#print("cont " + str(cont))
+    	#print("seq " + str(seq))
 
     return -1
 
@@ -160,22 +166,19 @@ def h_upward_diagonals(board, player):
             state = board[column - 1][line - 1]
             #s += str(state)
 
-            if state == 0:
-                cont = cont +1
-            elif state == player:
-                seq = seq + 1
-            else:
-                cont = 0
-                seq = 0
+            if state == 0 or state == player:
+            	if state == 0:
+            		cont += 1
+            	else:
+            		seq += 1
 
-            if cont + seq == 5:
-                if seq == 0:
-                	seq = 1
-                #if column in [6, 5, 4]:
-                #	return +10*seq+30
-                #else:
-                return +10*seq  
-           
+            	if (cont + seq) == 5:
+            		if seq == 0:
+            			seq = 1
+            		return +10*seq
+            else:
+            	cont = 0
+            	seq = 0 
             coords = neighbors(board, column, line)[1]
 
     return -1
@@ -195,22 +198,19 @@ def h_downward_diagonals(board, player):
             line = coords[1]
             state = board[column - 1][line - 1]
 
-            if state == 0:
-                cont = cont +1
-            elif state == player:
-                seq = seq + 1
-            else:
-                cont = 0
-                seq = 0
+            if state == 0 or state == player:
+            	if state == 0:
+            		cont += 1
+            	else:
+            		seq += 1
 
-            if cont + seq == 5:
-            	if seq == 0:
-            		seq = 1
-            	
-            	#if column in [6, 5, 4]:
-                #	return +10*seq+30
-            	#else:
-            	return +10*seq           
+            	if (cont + seq) == 5:
+            		if seq == 0:
+            			seq = 1
+            		return +10*seq
+            else:
+            	cont = 0
+            	seq = 0            
 
             coords = neighbors(board, column, line)[4]
 
@@ -244,22 +244,22 @@ def heuristica_total(board, player):
 			#testando as verticais
 			if h_line_p2 != -1:
 				h -= 20
-				if h_line_p2 > 30:
-					h -= h_line_p2
+				#if h_line_p2 > 30:
+				#	h -= h_line_p2
 			if h_line_p1 != -1:
 				h += 30
 			else:
 				h -= 20
 		
-		if col in [4, 5, 6]:
-			h +=200
+		#if col in [4, 5, 6]:
+		#	h +=200
 
 		if player == 2:
 		#testando as verticais
 			if h_line_p1 != -1:
 				h += 20
-				if h_line_p1 > 30:
-					h += h_line_p2
+				#if h_line_p1 > 30:
+				#	h += h_line_p2
 			if h_line_p2 != -1:
 				h -= 30
 			else:
@@ -269,8 +269,8 @@ def heuristica_total(board, player):
 		#testando as diagonais superiores
 		if h_upward_diagonals_p2 != -1:
 			h -= 50
-			if h_upward_diagonals_p2 > 30:
-				h -= h_upward_diagonals_p2*2
+			#if h_upward_diagonals_p2 > 30:
+			#	h -= h_upward_diagonals_p2*2
 		if h_upward_diagonals_p1 != -1:
 			h += 60
 		else:
@@ -279,8 +279,8 @@ def heuristica_total(board, player):
 		#testando as diagonais inferiores
 		if h_downward_diagonals_p2 != -1:
 			h -= 50
-			if h_downward_diagonals_p2 > 30:
-				h -= h_downward_diagonals_p2*2
+			#if h_downward_diagonals_p2 > 30:
+			#	h -= h_downward_diagonals_p2*2
 		if h_downward_diagonals_p1 != -1:
 			h += 60
 		else:
@@ -290,8 +290,8 @@ def heuristica_total(board, player):
 		#testando as diagonais superiores
 		if h_upward_diagonals_p1 != -1:
 			h += 50
-			if h_upward_diagonals_p1 > 30:
-				h += h_upward_diagonals_p1*2
+			#if h_upward_diagonals_p1 > 30:
+			#	h += h_upward_diagonals_p1*2
 		if h_upward_diagonals_p2 != -1:
 			h -= 40
 		else:
@@ -300,8 +300,8 @@ def heuristica_total(board, player):
 		#testando as diagonais inferiores
 		if h_downward_diagonals_p1 != -1:
 			h += 50
-			if h_downward_diagonals_p1 > 30:
-				h += h_downward_diagonals_p1*2
+			#if h_downward_diagonals_p1 > 30:
+			#	h += h_downward_diagonals_p1*2
 		if h_downward_diagonals_p2 != -1:
 			h -= 40
 		else:
