@@ -277,8 +277,8 @@ def h_upward_diagonals(board, player):
 	            if (cont + seq) == 5:
 	            	if seq == 0:
 	            		seq = 1
-	            	if column in [6, 5, 4]:
-	            		return +10*seq+30
+	            	if column in [6, 5, 4, 7]:
+	            		return +10*seq+50
 	            	else:
 	            		return +10*seq
             else:
@@ -308,13 +308,76 @@ def h_downward_diagonals(board, player):
 				if (cont + seq) == 5:
 					if seq == 0:
 						seq = 1
-					if column in [6, 5, 4]:
-						return +10*seq+30
+					if column in [6, 5, 4, 7]:
+						return +10*seq+50
 					else:
 						return +10*seq
 			else:
 				cont = 0
 				seq = 0
+			coords = neighbors(board, column, line)[4]
+	return -1
+
+def h_line_sanduiche(board, player, enemy):
+
+    s = ""
+    for line in range(len(board)):
+        state = board[line]
+        s += str(state)
+
+        if len(s) == 4:
+        	#verificar sanduiche
+        	if s == (str(player)+str(enemy)+str(enemy)+str("0")):
+        		return +10
+        	else:
+        		s = ""           
+
+    return -1
+
+def h_upward_diagonals_sanduiche(board, player, enemy):
+
+    # test upward diagonals
+    s = ""
+
+    diags = [(1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
+                (2, 6), (3, 7), (4, 8), (5, 9), (6, 10)]
+    for column_0, line_0 in diags:
+        coords = (column_0, line_0)
+        while coords != None:
+            column = coords[0]
+            line = coords[1]
+            state = board[column - 1][line - 1]
+            s += str(state)
+
+            if len(s) == 4:
+            	if s == (str(player)+str(enemy)+str(enemy)+str("0")):
+            		return +10
+            	else:
+            		s = ""            
+
+            coords = neighbors(board, column, line)[1]
+
+    return -1
+
+def h_downward_diagonals_sanduiche(board, player, enemy):
+	s = ""
+
+	diags = [(6, 1), (5, 1), (4, 1), (3, 1), (2, 1),(1, 1), (1, 2), (1, 3), (1, 4), (1, 5)]
+
+	for column_0, line_0 in diags:
+		coords = (column_0, line_0)
+		while coords != None:
+			column = coords[0]
+			line = coords[1]
+			state = board[column - 1][line - 1]
+			s += str(state)
+
+			if len(s) == 4:
+				if s == (str(player)+str(enemy)+str(enemy)+str("0")):
+					return +10
+				else:
+					s = ""
+			
 			coords = neighbors(board, column, line)[4]
 	return -1
 
@@ -336,72 +399,103 @@ def heuristica_total(board, player):
 	h_downward_diagonals_p1 = h_downward_diagonals(board, 1) 
 	h_downward_diagonals_p2 = h_downward_diagonals(board, 2)
 
+	h_upward_diagonals_sand_p1 = h_upward_diagonals_sanduiche(board, 1, 2)
+	h_upward_diagonals_sand_p2 = h_upward_diagonals_sanduiche(board, 2, 1)
+
+	h_downward_diagonals_sand_p1 = h_downward_diagonals_sanduiche(board, 1, 2) 
+	h_downward_diagonals_sand_p2 = h_downward_diagonals_sanduiche(board, 2, 1)
+
+
 	for col in range(0, len(board)):
 		h_line_p1 = h_line(board[col], 1) 
-		h_line_p2 = h_line(board[col], 2) 
+		h_line_p2 = h_line(board[col], 2)
+
+		h_line_sand_p1 = h_line_sanduiche(board[col], 1, 2) 
+		h_line_sand_p2 = h_line_sanduiche(board[col], 2, 1)
+
 		if player == 1:
 			#testando as verticais
 			if h_line_p2 != -1:
 				h -= 20
 				if h_line_p2 > 30:
-					h -= h_line_p2
+					h-=30
+				h -= h_line_p2
 			if h_line_p1 != -1:
 				h += 30
 			else:
 				h -= 20
+			if h_line_sand_p1 != -1:
+				h += h_line_sand_p1
+			if col in [5,6,7]:
+				h += 100
 
 		if player == 2:
 		#testando as verticais
 			if h_line_p1 != -1:
 				h += 20
 				if h_line_p1 > 30:
-					h += h_line_p2
+					h+=30
+				h += h_line_p2
 			if h_line_p2 != -1:
 				h -= 30
 			else:
 				h += 20
+			#if h_line_sand_p2 != -1:
+			#	h -= h_line_sand_p2
 
 	if player == 1:
 		#testando as diagonais superiores
 		if h_upward_diagonals_p2 != -1:
 			h -= 50
 			if h_upward_diagonals_p2 > 30:
-				h -= h_upward_diagonals_p2
+				h-=30
+			h -= h_upward_diagonals_p2
 		if h_upward_diagonals_p1 != -1:
 			h += 60
 		else:
 			h -= 40
+		if h_upward_diagonals_sand_p1 != -1:
+			h += h_upward_diagonals_sand_p1
 
 		#testando as diagonais inferiores
 		if h_downward_diagonals_p2 != -1:
 			h -= 50
 			if h_downward_diagonals_p2 > 30:
-				h -= h_downward_diagonals_p2
+				h-=30
+			h -= h_downward_diagonals_p2
 		if h_downward_diagonals_p1 != -1:
 			h += 60
 		else:
 			h -= 40
+		if h_upward_diagonals_sand_p2 != -1:
+			h += h_upward_diagonals_sand_p2
 
 	if player == 2:
 		#testando as diagonais superiores
 		if h_upward_diagonals_p1 != -1:
 			h += 50
 			if h_upward_diagonals_p1 > 30:
-				h += h_upward_diagonals_p1
+				h+=30
+			h += h_upward_diagonals_p1
 		if h_upward_diagonals_p2 != -1:
 			h -= 40
 		else:
 			h += 60
+		#if h_upward_diagonals_sand_p1 != -1:
+		#	h -= h_upward_diagonals_sand_p1
 
 		#testando as diagonais inferiores
 		if h_downward_diagonals_p1 != -1:
 			h += 50
 			if h_downward_diagonals_p1 > 30:
-				h += h_downward_diagonals_p1
+				h+=30
+			h += h_downward_diagonals_p1
 		if h_downward_diagonals_p2 != -1:
 			h -= 40
 		else:
 			h += 60
+		#if h_downward_diagonals_p2 != -1:
+		#	h -= h+h_downward_diagonals_p2
 
 	return h
 
@@ -416,10 +510,9 @@ def minimax(board, depth, player, depth_initial, alpha=-inf, beta=inf):
     	return h, (-1, -1)
 
     if sanduiche != None:
-    	try:
+    	if ((sanduiche[0],sanduiche[1])) in moves:
     		moves.remove((sanduiche[0],sanduiche[1]))
-    	finally:
-    		sanduiche = None
+    	sanduiche = None
 
     if player == 2:
         best_val = inf
